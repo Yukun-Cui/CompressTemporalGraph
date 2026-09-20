@@ -1,0 +1,36 @@
+# Build output
+**/target/
+**/*.o
+**/*.obj
+**/*.exe
+**/a.out
+**/main_test
+**/*.class
+outputs/
+*-results.txt
+
+# Compiled Ligra binaries (third_party/temporal_ligra) have no suffix; ignore
+# the build products by name so the sources next to them stay tracked.
+third_party/temporal_ligra/apps/**/*.out
+third_party/temporal_ligra/utils/*.out
+
+# Generated graph artifacts
+*.efindex
+*.graph
+*.obl
+*.offsets
+*.timestamps
+
+# IDE metadata
+.idea/
+.settings/
+.classpath
+.project
+*.iml
+*.ipr
+*.iws
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+*.swp
