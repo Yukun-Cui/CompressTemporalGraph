@@ -1,8 +1,6 @@
-# CompressTemporalGraph：时序图压缩对比实验
+# CompressTemporalGraph
 
-本仓库是 CompressTemporalGraph 主项目，包含 GPU 实现、Java CPU baseline、规范化数据集和历史实验。当前对比实验统一使用以下数据集名称：`Comm`、`MyD`、`Flickr`、`Wiki`、`Yahoo`、`Yahoo-sub`。
-
-`Yahoo-sub` 是 Yahoo 的逻辑 workload 视图：通过硬链接复用 Yahoo 的数据文件，但所有 workload 都忽略节点 ID `0–1999`。
+本仓库是论文：Enabling Efficient GPU-Based Temporal Graph Analytics without Decompression 的代码仓库。
 
 ## 目录
 
@@ -54,5 +52,3 @@ mvn exec:java -Dexec.args="Yahoo-sub PageRank"
 ```
 
 workload 名称为 `RA`、`BFS`、`CC`、`PR`、`HITS`、`DC`、`GC`。缺少压缩文件时 runner 会自动创建 `data/compressed/<Dataset>/`，并读取 `data/raw/<Dataset>.raw.txt.gz` 重新准备数据。
-
-数据文件布局及 Yahoo/Yahoo-sub 的硬链接关系见 `data/README.md`。CUDA 候选实现与主线放在同一数据集目录，通过 `<算法>_<备注>.cu` 命名区分，详情见 `gpu_cuda/README.md`。第三方项目的构建方式见各自目录下的 README。
