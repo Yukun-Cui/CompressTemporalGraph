@@ -14,12 +14,25 @@ outputs/
 third_party/temporal_ligra/apps/**/*.out
 third_party/temporal_ligra/utils/*.out
 
-# Generated graph artifacts
+# Datasets and generated graph artifacts. These are large (Yahoo alone has
+# ~103M vertices) and are rebuilt by the Java runner, so they stay local.
+# data/**/README.md and .gitkeep are re-included below to keep the layout.
+data/raw/*
+data/compressed/*
 *.efindex
 *.graph
 *.obl
 *.offsets
 *.timestamps
+*.properties
+graph_lower_bits.bin
+graph_upper_bits.bin
+timestamp_lower_bits.bin
+timestamp_upper_bits.bin
+
+!data/raw/.gitkeep
+!data/compressed/.gitkeep
+!data/**/README.md
 
 # IDE metadata
 .idea/

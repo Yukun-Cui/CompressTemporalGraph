@@ -8,14 +8,14 @@
 | --- | --- |
 | `gpu_cuda/` | GPU 主实现及候选变体；每个数据集位于 `<Dataset>/`，共享 CUDA 代码位于 `shared/` |
 | `cpu_java/` | 单一 CPU baseline，支持全部六个数据集名称 |
-| `data/compressed/` | 按数据集归档的压缩图和 GPU 索引 |
-| `data/raw/` | 平铺存放六个原始 `.gz` 压缩包 |
+| `data/compressed/` | 按数据集归档的压缩图和 GPU 索引（内容不入 git，详见 `data/README.md`） |
+| `data/raw/` | 平铺存放六个原始 `.gz` 压缩包（内容不入 git） |
 | `gpu_cuda/decode_tables/` | CUDA 使用的解码查找表 |
 | `third_party/` | 外部参考实现，不属于主项目构建，详见 `third_party/README.md` |
 
 ## 第三方项目
 
-`third_party/` 下的两个项目是独立的上游仓库，各自保留自己的 `.git`、remote 和构建方式，主项目的构建不依赖它们：
+`third_party/` 下的两个项目以 vendor 方式随本仓库提交（原有的嵌套 `.git` 已移除），主项目的构建不依赖它们：
 
 | 路径 | 说明 |
 | --- | --- |
@@ -52,3 +52,5 @@ mvn exec:java -Dexec.args="Yahoo-sub PageRank"
 ```
 
 workload 名称为 `RA`、`BFS`、`CC`、`PR`、`HITS`、`DC`、`GC`。缺少压缩文件时 runner 会自动创建 `data/compressed/<Dataset>/`，并读取 `data/raw/<Dataset>.raw.txt.gz` 重新准备数据。
+
+数据文件的放置方式及 Yahoo-sub 的硬链接关系见 `data/README.md`。
