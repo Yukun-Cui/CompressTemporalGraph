@@ -56,6 +56,15 @@ int H_ZETA_3[256 * 256];
 #define SEED 123
 #define MY_INFINITY 0xFFFFFFFF
 #define nodesPerBlockMultiplier 4
+
+#ifndef TEMPORAL_ALPHA
+#define TEMPORAL_ALPHA 0.1
+#endif
+
+#ifndef TGA_DUMP_RANK_SUMMARY
+#define TGA_DUMP_RANK_SUMMARY 0
+#endif
+
 __constant__ double dampingFactor = 0.85;
 
 __constant__ int gef_low_len;//low bits length of graph's elias-fano code 
@@ -1442,7 +1451,7 @@ __device__ void PR_get_dest(int dest_size, uint64_t offsetGraph, bool* dv2, int*
             printf("result:%d, %d\n", result, x); // return;
         }
         if (result != previous_v && result <= MAX_Vertex && result >= ACTIVE_VERTEX_BEGIN) {
-            double contribution = dampingFactor * Rank[x] * (1.0 - exp(-0.1 * timestamp)) / d;
+            double contribution = dampingFactor * Rank[x] * (1.0 - exp(-TEMPORAL_ALPHA * timestamp)) / d;
             atomicAdd(&newRank[result], contribution);
         }
         previous_v = result;
@@ -1577,7 +1586,7 @@ __device__ void PR_travel(int off, int i, uint64_t offsetGraph, uint64_t offsetT
                 printf("result:%d, %d\n", result, x);  //return;
             }
             if (result != previous_v && result <= MAX_Vertex && result >= ACTIVE_VERTEX_BEGIN) {
-                double contribution = dampingFactor * Rank[x] * (1.0 - exp(-0.1 * timestamp)) / d;
+                double contribution = dampingFactor * Rank[x] * (1.0 - exp(-TEMPORAL_ALPHA * timestamp)) / d;
                 atomicAdd(&newRank[result], contribution);
             }
             previous_v = result;
@@ -1999,6 +2008,38 @@ int main() {
     auto PR_end = std::chrono::steady_clock::now();
     long PR_duration = std::chrono::duration_cast<std::chrono::milliseconds>(PR_end - PR_start).count();
     printf("PageRank Elapsed time in milliseconds : %li ms.\n", PR_duration);
+
+#if TGA_DUMP_RANK_SUMMARY
+    CHECK(cudaMemcpy(h_Rank, Rank, MAX_Vertex * sizeof(double), cudaMemcpyDeviceToHost));
+    const int topK = 10;
+    int topIndex[topK];
+    double topValue[topK];
+    for (int k = 0; k < topK; ++k) {
+        topIndex[k] = -1;
+        topValue[k] = -1.0;
+    }
+    double rankSum = 0.0;
+    for (int vertex = 0; vertex < MAX_Vertex; ++vertex) {
+        rankSum += h_Rank[vertex];
+        for (int k = 0; k < topK; ++k) {
+            if (h_Rank[vertex] > topValue[k]) {
+                for (int j = topK - 1; j > k; --j) {
+                    topValue[j] = topValue[j - 1];
+                    topIndex[j] = topIndex[j - 1];
+                }
+                topValue[k] = h_Rank[vertex];
+                topIndex[k] = vertex;
+                break;
+            }
+        }
+    }
+    printf("PageRank alpha=%.12g rank_sum=%.12g top10=", (double)TEMPORAL_ALPHA, rankSum);
+    for (int k = 0; k < topK; ++k) {
+        if (k != 0) printf(",");
+        printf("%d:%.12g", topIndex[k], topValue[k]);
+    }
+    printf("\n");
+#endif
 
     cudaFree(Rank);
     cudaFree(newRank);
